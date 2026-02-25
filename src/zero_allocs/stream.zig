@@ -185,9 +185,9 @@ const ParserState = struct {
 /// Parses individual fields and marks fields at the end of a row
 pub fn Parser(comptime Reader: type, comptime Writer: type) type {
     return struct {
-        pub const ReadError = Reader.Error || CsvReadError || error{EndOfStream};
-        pub const WriteError = Writer.Error;
-        pub const Error = ReadError || WriteError;
+        pub const ReadError = anyerror;
+        pub const WriteError = anyerror;
+        pub const Error = anyerror;
         _reader: Reader,
         _state: ParserState = .{},
         _opts: common.CsvOpts = .{},
@@ -516,7 +516,7 @@ test "simd array" {
 
 test "array field streamer" {
     // get our writer
-    var buff = std.ArrayList(u8).init(std.testing.allocator);
+    var buff = std.array_list.Managed(u8).init(std.testing.allocator);
     defer buff.deinit();
 
     var input = std.io.fixedBufferStream(
@@ -558,7 +558,7 @@ test "array field streamer" {
 
 test "slice streamer" {
     // get our writer
-    var buff = std.ArrayList(u8).init(std.testing.allocator);
+    var buff = std.array_list.Managed(u8).init(std.testing.allocator);
     defer buff.deinit();
 
     var input = std.io.fixedBufferStream(
@@ -793,7 +793,7 @@ test "crlfa, at 63" {
 
 test "End with quote" {
     const testing = @import("std").testing;
-    var buff = std.ArrayList(u8).init(std.testing.allocator);
+    var buff = std.array_list.Managed(u8).init(std.testing.allocator);
     defer buff.deinit();
 
     var input = std.io.fixedBufferStream("\"hello, world\"");
@@ -837,7 +837,7 @@ test "End with quote" {
 //     const csv = try file.readToEndAlloc(allocator, 500 * mb);
 //     var input = std.io.fixedBufferStream(csv);
 //     
-//     var buff = std.ArrayList(u8).init(std.testing.allocator);
+//     var buff = std.array_list.Managed(u8).init(std.testing.allocator);
 //     defer buff.deinit();
 //
 //     var stream = init(input.reader(), @TypeOf(buff.writer()), .{});
@@ -855,4 +855,3 @@ test "End with quote" {
 //     try std.testing.expectEqual(114393, lines);
 //     try std.testing.expectEqual(915144, count);
 // }
-

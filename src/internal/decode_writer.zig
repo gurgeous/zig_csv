@@ -5,9 +5,9 @@ const common = @import("../common.zig");
 /// Operates on a stream basis to avoid internal buffering
 /// Meant for internal use
 pub fn DecodeWriter(comptime UnderlyingWriter: type) type {
-    const AppendErr = UnderlyingWriter.Error;
+    const AppendErr = anyerror;
     return struct {
-        pub const Writer = std.io.Writer(
+        pub const Writer = std.io.GenericWriter(
             *@This(),
             AppendErr,
             @This().append,

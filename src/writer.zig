@@ -397,7 +397,7 @@ test "row custom" {
         .column_line_end_prefix = '\n',
     };
 
-    const ArrayList = @import("std").ArrayList;
+    const ArrayList = @import("std").array_list.Managed;
     var list = ArrayList(u8).init(testing.allocator);
     defer list.deinit();
 
@@ -452,7 +452,7 @@ test "row good" {
         chef: []const u8,
     };
 
-    const ArrayList = @import("std").ArrayList;
+    const ArrayList = @import("std").array_list.Managed;
     var list = ArrayList(u8).init(testing.allocator);
     defer list.deinit();
 
@@ -500,7 +500,7 @@ test "row str good custom" {
 
     const in_row = [_][]const u8{ "col1", "col2", "col'3'", "col4", "col5" };
 
-    const ArrayList = @import("std").ArrayList;
+    const ArrayList = @import("std").array_list.Managed;
     var list = ArrayList(u8).init(testing.allocator);
     defer list.deinit();
 
@@ -523,7 +523,7 @@ test "row str good" {
 
     const in_row = [_][]const u8{ "col1", "col2", "col\"3\"", "col4", "col5" };
 
-    const ArrayList = @import("std").ArrayList;
+    const ArrayList = @import("std").array_list.Managed;
     var list = ArrayList(u8).init(testing.allocator);
     defer list.deinit();
 
@@ -539,7 +539,7 @@ test "row str good" {
 test "row large" {
     const testing = @import("std").testing;
 
-    const ArrayList = @import("std").ArrayList;
+    const ArrayList = @import("std").array_list.Managed;
     var list = ArrayList(u8).init(testing.allocator);
     defer list.deinit();
 

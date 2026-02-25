@@ -9,8 +9,8 @@ pub const Row = @import("map.zig").Row;
 /// Clones a row and its memory
 fn cloneRow(self: *const column.Row, alloc: std.mem.Allocator) !column.Row {
     var new = column.Row{
-        ._fields = std.ArrayList(column.RowField).init(alloc),
-        ._bytes = std.ArrayList(u8).init(alloc),
+        ._fields = std.array_list.Managed(column.RowField).init(alloc),
+        ._bytes = std.array_list.Managed(u8).init(alloc),
     };
 
     errdefer new.deinit();

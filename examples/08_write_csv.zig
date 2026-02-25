@@ -27,7 +27,10 @@ pub fn main() !void {
     };
 
     // get our writer
-    const writer = std.io.getStdErr().writer();
+    var writer_buffer: [1024]u8 = undefined;
+    var stderr_writer = std.fs.File.stderr().writer(&writer_buffer);
+    const writer = &stderr_writer.interface;
+    defer writer.flush() catch {};
 
     // write our header
     const csv_writer = zcsv.writer.init(writer, .{});
@@ -37,4 +40,5 @@ pub fn main() !void {
     for (users) |u| {
         try csv_writer.writeRow(.{ u.id, u.name, u.age });
     }
+
 }

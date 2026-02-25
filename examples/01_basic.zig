@@ -15,7 +15,10 @@ pub fn main() !void {
     }
     const allocator = gpa.allocator();
 
-    const stderr = std.io.getStdErr().writer();
+    var stderr_buffer: [1024]u8 = undefined;
+    var stderr_writer = std.fs.File.stderr().writer(&stderr_buffer);
+    const stderr = &stderr_writer.interface;
+    defer stderr.flush() catch {};
 
     const csv =
         \\productid,productname,productsales
@@ -55,4 +58,5 @@ pub fn main() !void {
     if (parser.err) |err| {
         std.log.err("Error: {}", .{err});
     }
+
 }

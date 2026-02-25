@@ -7,7 +7,7 @@ const std = @import("std");
 
 const User = struct {
     id: i64,
-    name: std.ArrayList(u8),
+    name: std.array_list.Managed(u8),
     age: ?u16,
 
     pub fn deinit(self: User) void {
@@ -57,16 +57,19 @@ pub fn main() !void {
 
 const Errors = error{ BadHeader, MissingFields };
 
-pub fn parseFile(alloc: std.mem.Allocator, fileName: []const u8) !std.ArrayList(User) {
+pub fn parseFile(alloc: std.mem.Allocator, fileName: []const u8) !std.array_list.Managed(User) {
     // Open our file
     const file = try std.fs.cwd().openFile(fileName, .{});
     defer file.close();
 
-    var res = std.ArrayList(User).init(alloc);
+    var res = std.array_list.Managed(User).init(alloc);
     errdefer res.deinit();
 
     // We can read directly from our file reader
-    var parser = zcsv.allocs.column.init(alloc, file.reader(), .{});
+    const csv = try file.readToEndAlloc(alloc, std.math.maxInt(usize));
+    defer alloc.free(csv);
+    var file_stream = std.io.fixedBufferStream(csv);
+    var parser = zcsv.allocs.column.init(alloc, file_stream.reader(), .{});
 
     var columns = std.StringHashMap(usize).init(alloc);
     defer columns.deinit();

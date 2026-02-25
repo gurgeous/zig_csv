@@ -39,8 +39,8 @@ pub const Field = struct {
     pub fn clone(
         self: Field,
         allocator: std.mem.Allocator,
-    ) std.mem.Allocator.Error!std.ArrayList(u8) {
-        var copy = std.ArrayList(u8).init(allocator);
+    ) std.mem.Allocator.Error!std.array_list.Managed(u8) {
+        var copy = std.array_list.Managed(u8).init(allocator);
         errdefer copy.deinit();
         try copy.resize(self.data().len);
         std.mem.copyForwards(u8, copy.items, self.data());
@@ -68,9 +68,9 @@ pub const RowIter = struct {
 /// Row.denit() will clean all memory owned by the Row (including field memory)
 pub const Row = struct {
     const OutOfBoundsError = error{IndexOutOfBounds};
-    _fields: std.ArrayList(RowField),
+    _fields: std.array_list.Managed(RowField),
     /// Holds the byte data for all of the fields
-    _bytes: std.ArrayList(u8),
+    _bytes: std.array_list.Managed(u8),
 
     /// Cleans up all memory owned by the row (including field memory)
     pub fn deinit(self: Row) void {
@@ -113,7 +113,7 @@ pub const Row = struct {
 /// Will parse the reader line-by-line instead of all at once
 /// Memory is owned by returned rows, so call Row.deinit()
 pub fn Parser(comptime Reader: type) type {
-    const Writer = std.ArrayList(u8).Writer;
+    const Writer = std.array_list.Managed(u8).Writer;
     const Fs = streamFast.Parser(Reader, Writer);
     return struct {
         pub const Rows = Row;
@@ -177,8 +177,8 @@ pub fn Parser(comptime Reader: type) type {
             std.debug.assert(!self._done);
 
             var row = Row{
-                ._fields = std.ArrayList(RowField).init(self._allocator),
-                ._bytes = std.ArrayList(u8).init(self._allocator),
+                ._fields = std.array_list.Managed(RowField).init(self._allocator),
+                ._bytes = std.array_list.Managed(u8).init(self._allocator),
             };
 
             // Doing this defer since so we can track our max field for

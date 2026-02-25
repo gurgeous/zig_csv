@@ -11,7 +11,10 @@ pub fn main() !void {
         \\3892392,"I can't believe it's not chicken!",480
         \\5934810,"Win The Fish",-
     ;
-    const stderr = std.io.getStdErr().writer();
+    var stderr_buffer: [1024]u8 = undefined;
+    var stderr_writer = std.fs.File.stderr().writer(&stderr_buffer);
+    const stderr = &stderr_writer.interface;
+    defer stderr.flush() catch {};
     var buff = std.io.fixedBufferStream(csv);
     const reader = buff.reader();
 
@@ -40,4 +43,5 @@ pub fn main() !void {
             try stderr.print("\t", .{});
         }
     }
+
 }

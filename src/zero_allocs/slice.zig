@@ -32,8 +32,8 @@ pub const Field = struct {
     pub fn clone(
         self: *const Field,
         allocator: std.mem.Allocator,
-    ) std.mem.Allocator.Error!std.ArrayList(u8) {
-        var copy = std.ArrayList(u8).init(allocator);
+    ) std.mem.Allocator.Error!std.array_list.Managed(u8) {
+        var copy = std.array_list.Managed(u8).init(allocator);
         errdefer copy.deinit();
         try common.decode(self._data, copy.writer(), self._opts);
         return copy;
@@ -566,7 +566,7 @@ test "simd array" {
 
 test "array field streamer" {
     // get our writer
-    var buff = std.ArrayList(u8).init(std.testing.allocator);
+    var buff = std.array_list.Managed(u8).init(std.testing.allocator);
     defer buff.deinit();
 
     const input =
@@ -612,7 +612,7 @@ test "array field streamer" {
 
 test "slice streamer" {
     // get our writer
-    var buff = std.ArrayList(u8).init(std.testing.allocator);
+    var buff = std.array_list.Managed(u8).init(std.testing.allocator);
     defer buff.deinit();
 
     const input =

@@ -21,19 +21,29 @@ pub fn parseFile(fileName: []const u8) !void {
     const file = try std.fs.cwd().openFile(fileName, .{});
     defer file.close();
 
+    var stderr_buffer: [1024]u8 = undefined;
+    var stderr_writer = std.fs.File.stderr().writer(&stderr_buffer);
+    const stderr = &stderr_writer.interface;
+    defer stderr.flush() catch {};
+
+    const csv = try file.readToEndAlloc(alloc, std.math.maxInt(usize));
+    defer alloc.free(csv);
+    var file_stream = std.io.fixedBufferStream(csv);
+
     // We can read directly from our file reader
-    var parser = zcsv.allocs.column.init(alloc, file.reader(), .{});
+    var parser = zcsv.allocs.column.init(alloc, file_stream.reader(), .{});
     while (parser.next()) |row| {
         // Clean up our memory
         defer row.deinit();
 
-        try std.io.getStdErr().writeAll("\nROW:");
+        try stderr.writeAll("\nROW:");
 
         // Iterate over our fields
         var fieldIter = row.iter();
         while (fieldIter.next()) |field| {
-            try std.io.getStdErr().writeAll(" Field: ");
-            try std.io.getStdErr().writeAll(field.data());
+            try stderr.writeAll(" Field: ");
+            try stderr.writeAll(field.data());
         }
     }
+
 }
